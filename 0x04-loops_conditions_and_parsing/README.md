@@ -3,9 +3,6 @@ Foundations > System engineering & DevOps > Bash
 
 ---
 
-### Project author
-Sylvain Kalache
-
 ### Assignment dates
 06-19-2020 to 06-20-2020
 
