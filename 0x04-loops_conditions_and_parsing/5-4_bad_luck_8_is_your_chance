@@ -4,6 +4,6 @@
 i=0; while (( i < 10 )); do
 if (( i == 3 )); then echo 'bad luck'
 elif (( i == 7 )); then echo 'good luck'
-else echo 'Holberton School'; fi
+else echo 'Best School'; fi
 ((i++)); done
 unset i
