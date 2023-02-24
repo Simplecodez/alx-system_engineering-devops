@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Displays files info about file status of `holbertonschool`
-FILE=bestschool
+FILE=holbertonschool
 if test -e "$FILE"; then
     echo $FILE 'file exists'
     if test -s "$FILE"; then  # size > 0 / not empty
