@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
-# secure shell for user `ubuntu` into 35.196.139.2 using `holberton` identity
-ssh -i ~/.ssh/school ubuntu@54.236.48.135
+# Bash script that uses ssh to connect to your server using the private
+# key ~/.ssh/school with the user ubuntu
+ssh ubuntu@52.91.119.196 -i ~/.ssh/school
+
