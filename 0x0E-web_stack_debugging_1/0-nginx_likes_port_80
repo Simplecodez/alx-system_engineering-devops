@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# container-specific fix to restore nginx service listening (only) on port 80
-ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-NGINX_PID=$(pgrep -u root nginx)
-echo "$NGINX_PID" > /run/nginx.pid
-service nginx reload
+# debugging nginx port 80
+# How I solved it: delete the existing ../sites-enabled/default and replace it with a copy of
+# ../sites-available/default. You do that by creating a symbolic link. 
+# NB: The flag -s creates a symbolic link, -f deletes the existing file and replaces it
+sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+sudo service nginx restart

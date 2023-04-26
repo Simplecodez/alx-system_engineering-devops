@@ -1,31 +1,31 @@
 #!/usr/bin/python3
-"""0x15. API, task 3. Dictionary of list of dictionaries
-"""
-from json import loads, dumps
-from requests import get
-from sys import argv
+"""Accessing a REST API for todo lists of employees"""
+
+import json
+import requests
+import sys
 
 
-if __name__ == "__main__":
-    users_response = get('https://jsonplaceholder.typicode.com/users')
-    user_list = loads(users_response.text)
+if __name__ == '__main__':
+    url = "https://jsonplaceholder.typicode.com/users"
 
-    todos_response = get('https://jsonplaceholder.typicode.com/todos')
-    task_list = loads(todos_response.text)
+    response = requests.get(url)
+    users = response.json()
 
-    user_task_dict = {}
-    for user in user_list:
-        user_id = user['id']
-        username = user['username']
-        user_task_dict[user_id] = []
-        gen = (task for task in task_list
-               if task['userId'] == user_id)
-        for task in gen:
-            formatted_task = {}
-            formatted_task['task'] = task['title']
-            formatted_task['completed'] = task['completed']
-            formatted_task['username'] = username
-            user_task_dict[user_id].append(formatted_task)
-
-    with open('todo_all_employees.json', mode='w') as json_file:
-        json_file.write(dumps(user_task_dict))
+    dictionary = {}
+    for user in users:
+        user_id = user.get('id')
+        username = user.get('username')
+        url = 'https://jsonplaceholder.typicode.com/users/{}'.format(user_id)
+        url = url + '/todos/'
+        response = requests.get(url)
+        tasks = response.json()
+        dictionary[user_id] = []
+        for task in tasks:
+            dictionary[user_id].append({
+                "task": task.get('title'),
+                "completed": task.get('completed'),
+                "username": username
+            })
+    with open('todo_all_employees.json', 'w') as file:
+        json.dump(dictionary, file)

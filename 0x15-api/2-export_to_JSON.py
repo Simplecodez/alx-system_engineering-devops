@@ -1,29 +1,29 @@
 #!/usr/bin/python3
-"""0x15. API, task 2. Export to JSON
-"""
-from json import loads, dumps
-from requests import get
-from sys import argv
+"""Accessing a REST API for todo lists of employees"""
+
+import json
+import requests
+import sys
 
 
-if __name__ == "__main__":
-    user_id = argv[1]
+if __name__ == '__main__':
+    employeeId = sys.argv[1]
+    baseUrl = "https://jsonplaceholder.typicode.com/users"
+    url = baseUrl + "/" + employeeId
 
-    user_response = get('https://jsonplaceholder.typicode.com/users/' +
-                        user_id)
-    username = loads(user_response.text)['username']
+    response = requests.get(url)
+    username = response.json().get('username')
 
-    todo_response = get('https://jsonplaceholder.typicode.com/users/' +
-                        user_id + '/todos')
-    todo_list = loads(todo_response.text)
+    todoUrl = url + "/todos"
+    response = requests.get(todoUrl)
+    tasks = response.json()
 
-    user_task_dict = {user_id: []}
-    for task in todo_list:
-        formatted_task = {}
-        formatted_task['task'] = task['title']
-        formatted_task['completed'] = task['completed']
-        formatted_task['username'] = username
-        user_task_dict[user_id].append(formatted_task)
-
-    with open(user_id + '.json', mode='w') as json_file:
-        json_file.write(dumps(user_task_dict))
+    dictionary = {employeeId: []}
+    for task in tasks:
+        dictionary[employeeId].append({
+            "task": task.get('title'),
+            "completed": task.get('completed'),
+            "username": username
+        })
+    with open('{}.json'.format(employeeId), 'w') as filename:
+        json.dump(dictionary, filename)

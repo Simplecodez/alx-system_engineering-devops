@@ -1,31 +1,16 @@
-# 0x0F. Load balancer - 2. Add a custom HTTP header with Puppet
-# HTTP response header for nginx web server
+# Use Puppet to automate the task of creating a custom HTTP header response
 
-exec { 'general update':
-    command => '/usr/bin/env apt-get -y update',
+exec {'update':
+  command => '/usr/bin/apt-get update',
 }
-
-package { 'nginx':
-    ensure  => installed,
-    require => Exec['general update']
+-> package {'nginx':
+  ensure => 'present',
 }
-
-file { 'minimum HTML content' :
-    ensure  => file,
-    path    => '/var/www/html/index.html',
-    content => 'Holberton School',
+-> file_line { 'http_header':
+  path  => '/etc/nginx/nginx.conf',
+  match => 'http {',
+  line  => "http {\n\tadd_header X-Served-By \"${hostname}\";",
 }
-
-file_line { 'HTTP response header' :
-    ensure  => present,
-    path    => '/etc/nginx/nginx.conf',
-    line    => "
-        add_header X-Served-By ${hostname};",
-    after   => 'http {',
-    require => Package['nginx']
-}
-
-service { 'nginx' :
-    ensure  => running,
-    require => File_line['HTTP response header']
+-> exec {'run':
+  command => '/usr/sbin/service nginx restart',
 }

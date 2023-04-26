@@ -1,68 +1,54 @@
 #!/usr/bin/python3
-""" 0x16. API advanced, task 3. Count it!
-"""
-from re import findall, IGNORECASE
-from requests import get
+""" raddit api"""
+
+import json
+import requests
 
 
-def count_words(subreddit, word_list, word_totals={}, after=''):
-    """ Tallies appearances of search terms in all "hot" post titles for a
-    given subreddit.
+def count_words(subreddit, word_list, after="", count=[]):
+    """count all words"""
 
-        Recursively queries Reddit API, one page per frame, to parse titles of
-    all "hot" posts and count occurances of each word in a given list of
-    search terms. Once finished, prints all non-zero totals sotrted first in
-    descending order by count, and then in alphabetic order.
+    if after == "":
+        count = [0] * len(word_list)
 
-    Args:
-        subreddit (str): subreddit to query
-        word_list (list): list of words to search for in titles of all posts
-           in "hot"
-        word_totals (dict): running total of search term occurances prior to
-            current page/frame
-        after (str): API name for last post in previous page
+    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+    request = requests.get(url,
+                           params={'after': after},
+                           allow_redirects=False,
+                           headers={'user-agent': 'bhalut'})
 
-    Return:
-        dict of running word totals from titles in all API pages parsed in
-    current recursion frame and those below
-    """
-    limit = 100
-    # (adding request parameter raw_json deactivates default ampersand escape)
-    url = 'https://www.reddit.com/r/{}/hot.json?raw_json=1&after={}&limit={}'
-    response = get(url.format(subreddit, after, limit),
-                   headers={'User-Agent': 'allelomorph-app2'})
+    if request.status_code == 200:
+        data = request.json()
 
-    # 404 or other error, or no search terms
-    if response.status_code != 200 or len(word_list) == 0:
-        return
+        for topic in (data['data']['children']):
+            for word in topic['data']['title'].split():
+                for i in range(len(word_list)):
+                    if word_list[i].lower() == word.lower():
+                        count[i] += 1
 
-    regex = '^{}$|^{} +| +{} +| +{}$'
-    word_count = dict.fromkeys([word.lower() for word in word_list], 0)
-    current_page_list = response.json().get('data').get('children', [])
+        after = data['data']['after']
+        if after is None:
+            save = []
+            for i in range(len(word_list)):
+                for j in range(i + 1, len(word_list)):
+                    if word_list[i].lower() == word_list[j].lower():
+                        save.append(j)
+                        count[i] += count[j]
 
-    # search titles in current page for terms
-    for post in current_page_list:
-        title = post.get('data').get('title', '')
-        for word in word_list:
-            count = len(findall(regex.format(word, word, word, word),
-                                title, IGNORECASE))
-            word_count[word.lower()] += count
+            for i in range(len(word_list)):
+                for j in range(i, len(word_list)):
+                    if (count[j] > count[i] or
+                            (word_list[i] > word_list[j] and
+                             count[j] == count[i])):
+                        aux = count[i]
+                        count[i] = count[j]
+                        count[j] = aux
+                        aux = word_list[i]
+                        word_list[i] = word_list[j]
+                        word_list[j] = aux
 
-    # update totals
-    for key, value in word_count.items():
-        if key in word_totals:
-            word_totals[key] += value
+            for i in range(len(word_list)):
+                if (count[i] > 0) and i not in save:
+                    print("{}: {}".format(word_list[i].lower(), count[i]))
         else:
-            word_totals[key] = value
-
-    # last page reached, print totals
-    if len(current_page_list) < limit:
-        for item in sorted(word_totals.items(),
-                           key=lambda item: (-item[1], item[0])):
-            if item[1] > 0:
-                print('{}: {}'.format(item[0], item[1]))
-        return
-
-    # still more titles to parse, recurse to next frame
-    after = current_page_list[-1].get('data').get('name', '')
-    return count_words(subreddit, word_list, word_totals, after)
+            count_words(subreddit, word_list, after, count)
