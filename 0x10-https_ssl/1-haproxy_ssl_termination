@@ -1,4 +1,4 @@
-global
+Noglobal
 	log /dev/log	local0
 	log /dev/log	local1 notice
 	chroot /var/lib/haproxy
@@ -46,5 +46,5 @@ frontend ehoneah-frontend-https
 
 backend ehoneah-backend
         balance roundrobin
-        server 63210-web-01 100.25.19.204:80 check
-        server 63210-web-02 54.157.159.85:80 check
+        server 63210-web-01 54.237.84.152:80 check
+        server 63210-web-02 34.203.29.159:80 check
