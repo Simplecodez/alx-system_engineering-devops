@@ -50,5 +50,5 @@ Make your post-mortem attractive by adding humour, a pretty diagram or anything 
 
 ---
 
-## Student
-* **Samuel Pomeroy** - [allelomorph](github.com/allelomorph)
+
+
