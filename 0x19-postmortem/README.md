@@ -4,10 +4,10 @@ Foundations > System engineering & DevOps > On call
 ---
 
 ### Project author
-Sylvain Kalache
+Emmanuel Elendu
 
-### Assignment dates
-09-29-2020 to 10-05-2020
+
+
 
 ### Description
 Practice in writing a proper report on the failure of a piece of software or web architecture.
